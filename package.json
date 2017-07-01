@@ -1,0 +1,25 @@
+{
+  "name": "auth0gql",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "apollo-client": "^1.6.0",
+    "graphql-anywhere": "^3.1.0",
+    "prop-types": "^15.5.10",
+    "react": "^15.6.1",
+    "react-apollo": "^1.4.2",
+    "react-dom": "^15.6.1",
+    "react-router": "^4.1.1",
+    "react-router-dom": "^4.1.1",
+    "subscriptions-transport-ws": "^0.7.3"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.7"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
