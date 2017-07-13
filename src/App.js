@@ -41,7 +41,7 @@ class App extends Component {
         />
       )
     } else {
-      return (<LogoutButton onClick={this._logout} >Logout</LogoutButton>)
+      return (<LogoutButton onClick={this._logout} className='dib pa3 white bg-blue dim pointer'>Logout</LogoutButton>)
     }
   }
 

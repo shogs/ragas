@@ -8,25 +8,8 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import ApolloClient, { createNetworkInterface } from 'apollo-client'
 import { ApolloProvider } from 'react-apollo'
 import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws'
-import styled from 'styled-components'
 import CreateUser from './CreateUser'
-
-const CreatePostDiv = styled.div`
-  width: 100%;
-  height: 100vh;
-  background-color: black;
-  color: white;
-`
-
-const Header = styled.h1`
-  margin-top: 0;
-`
-
-const CreatePost = () => (
-  <CreatePostDiv>
-    <Header>Hello</Header>
-  </CreatePostDiv>
-)
+import CreatePost from './CreatePost'
 
 const wsClient = new SubscriptionClient(process.env.REACT_APP_SUBSCRIPTION_API, {
   reconnect: true,
