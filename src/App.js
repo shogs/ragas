@@ -7,10 +7,16 @@ import { withRouter } from 'react-router'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import Login from './Login'
+import ListPage from './ListPage'
+import { Link } from 'react-router-dom'
 
-const LogoutButton = styled.button`
+const Button = styled.button`
   background: blue
   foreground: white
+`
+
+const PaddedDiv = styled.div`
+  padding: 10px
 `
 
 const clientId = process.env.REACT_APP_CLIENT_ID
@@ -41,7 +47,13 @@ class App extends Component {
         />
       )
     } else {
-      return (<LogoutButton onClick={this._logout} className='dib pa3 white bg-blue dim pointer'>Logout</LogoutButton>)
+      return (<Button onClick={this._logout} className='dib pa3 white bg-blue dim pointer'>Logout</Button>)
+    }
+  }
+
+  create = () => {
+    if (this._isLoggedIn()) {
+      return (<Link to="/create">Create</Link>)
     }
   }
 
@@ -58,6 +70,10 @@ class App extends Component {
         <div>
           {this.loginLogout()}
         </div>
+        <PaddedDiv>
+          {this.create()}
+        </PaddedDiv>
+        <ListPage />
       </div>
     )
   }
