@@ -13,11 +13,18 @@ class ListPage extends Component {
     this.props.data.subscribeToMore({
       document: SubscriptionQuery,
       updateQuery: (previousState, {subscriptionData}) => {
-        console.log(subscriptionData)
-        const newPost = subscriptionData.data.Post.node
-        const posts = [newPost].concat(previousState.allPosts)
-        return {
-          allPosts: posts
+        if (subscriptionData.data.Post.mutation === 'CREATED') {
+          const newPost = subscriptionData.data.Post.node
+          const posts = [newPost].concat(previousState.allPosts)
+          return {
+            allPosts: posts
+          }
+        } else if (subscriptionData.data.Post.mutation === 'DELETED') {
+          const deletedPost = subscriptionData.data.Post.previousValues
+          const posts = previousState.allPosts.filter(post => post.id !== deletedPost.id)
+          return {
+            allPosts: posts
+          }
         }
       }
     })
@@ -53,7 +60,7 @@ const FeedQuery = gql`
 // eslint-disable-next-line
 const SubscriptionQuery = gql`
   subscription SubscriptionQuery {
-    Post(filter: { mutation_in: [CREATED] }) {
+    Post(filter: { mutation_in: [CREATED, DELETED] }) {
       mutation
       node {
         id
