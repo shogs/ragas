@@ -15,9 +15,12 @@ class ListPage extends Component {
       updateQuery: (previousState, {subscriptionData}) => {
         if (subscriptionData.data.Post.mutation === 'CREATED') {
           const newPost = subscriptionData.data.Post.node
-          const posts = [newPost].concat(previousState.allPosts)
-          return {
-            allPosts: posts
+          const exists = previousState.allPosts.find(post => post.id === newPost.id)
+          if (!exists) {
+            const posts = [newPost].concat(previousState.allPosts)
+            return {
+              allPosts: posts
+            }
           }
         } else if (subscriptionData.data.Post.mutation === 'DELETED') {
           const deletedPost = subscriptionData.data.Post.previousValues
@@ -31,7 +34,7 @@ class ListPage extends Component {
   }
 
   render () {
-    if (this.props.data.loading && !this.props.data.allPosts) {
+    if (this.props.data.loading) {
       return (<div>Loading</div>)
     }
 
@@ -77,4 +80,4 @@ const SubscriptionQuery = gql`
 `
 
 
-export default graphql(FeedQuery, { options: {fetchPolicy: 'network-only'}})(ListPage)
+export default graphql(FeedQuery)(ListPage)

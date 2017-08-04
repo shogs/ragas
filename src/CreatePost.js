@@ -58,10 +58,18 @@ class CreatePost extends Component {
 
   handlePost = () => {
     const {description, imageUrl} = this.state
-    this.props.createPost({variables: {description, imageUrl}})
-      .then(() => {
-        this.props.history.push('/')
-      })
+    this.props.createPost({
+      variables: {description, imageUrl},
+      optimisticResponse: {
+        createPost: {
+          id: -1,
+          description: description,
+          imageUrl: imageUrl,
+          __typename: 'Post'
+        }
+      }
+    })
+    this.props.history.push('/')
   }
 }
 
@@ -98,7 +106,7 @@ export default graphql(createPost, {
   options: {
     update: (proxy, {data: {createPost}}) => {
       const data = proxy.readQuery({ query })
-      data.allPosts.push(createPost);
+      data.allPosts.unshift(createPost);
       proxy.writeQuery({query, data});
     }
   }
