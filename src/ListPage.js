@@ -24,7 +24,7 @@ class ListPage extends Component {
   }
 
   render () {
-    if (this.props.data.loading) {
+    if (this.props.data.loading && !this.props.data.allPosts) {
       return (<div>Loading</div>)
     }
 
