@@ -9,6 +9,20 @@ class ListPage extends Component {
     data: PropTypes.object,
   }
 
+  componentDidMount() {
+    this.props.data.subscribeToMore({
+      document: SubscriptionQuery,
+      updateQuery: (previousState, {subscriptionData}) => {
+        console.log(subscriptionData)
+        const newPost = subscriptionData.data.Post.node
+        const posts = [newPost].concat(previousState.allPosts)
+        return {
+          allPosts: posts
+        }
+      }
+    })
+  }
+
   render () {
     if (this.props.data.loading) {
       return (<div>Loading</div>)
@@ -26,12 +40,34 @@ class ListPage extends Component {
   }
 }
 
-const FeedQuery = gql`query FeedQuery {
-  allPosts(orderBy: createdAt_DESC) {
-    id
-    imageUrl
-    description
+const FeedQuery = gql`
+  query FeedQuery {
+    allPosts(orderBy: createdAt_DESC) {
+      id
+      ...Post_post
+    }
   }
-}`
+  ${Post.fragments.post}
+`
+
+// eslint-disable-next-line
+const SubscriptionQuery = gql`
+  subscription SubscriptionQuery {
+    Post(filter: { mutation_in: [CREATED] }) {
+      mutation
+      node {
+        id
+        description
+        imageUrl
+      }
+      previousValues {
+        id
+        description
+        imageUrl
+      }
+    }
+  }
+`
+
 
 export default graphql(FeedQuery, { options: {fetchPolicy: 'network-only'}})(ListPage)

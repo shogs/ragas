@@ -59,6 +59,31 @@ const deletePost = gql`
   }
 `
 
-const PostWithMutation = graphql(deletePost, {name: 'deletePost'})(Post)
+const query = gql`
+  query AllPostsQuery {
+    allPosts(orderBy: createdAt_DESC) {
+      id
+      ...Post_post
+    }
+  }
+  ${Post.fragments.post}
+`
+
+const PostWithMutation = graphql(deletePost, {
+  name: 'deletePost',
+  options: {
+    update: (proxy, {data: {deletePost}}) => {
+      const data = proxy.readQuery({ query })
+      data.allPosts.find((post, idx) => {
+        if (post.id === deletePost.id) {
+          data.allPosts.splice(idx, 1)
+          proxy.writeQuery({query, data})
+          return true
+        }
+        return false
+      })
+    }
+  }
+})(Post)
 
 export default PostWithMutation

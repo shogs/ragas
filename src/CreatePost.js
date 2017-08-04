@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { withRouter, Redirect } from 'react-router-dom'
 import { graphql, gql } from 'react-apollo'
 import { PropTypes } from 'prop-types'
+import Post from './Post'
 
 class CreatePost extends Component {
 
@@ -68,9 +69,22 @@ const createPost = gql`
   mutation createPost($description: String!, $imageUrl: String!) {
     createPost(description: $description, imageUrl: $imageUrl) {
       id
+      ... Post_post
     }
   }
+  ${Post.fragments.post}
 `
+
+const query = gql`
+  query AllPostsQuery {
+    allPosts(orderBy: createdAt_DESC) {
+      id
+      ... Post_post
+    }
+  }
+  ${Post.fragments.post}
+`
+
 const userQuery = gql`
   query userQuery {
     user {
@@ -80,21 +94,12 @@ const userQuery = gql`
 `
 
 export default graphql(createPost, {
-  props({ownProps, mutate}) {
-    return {
-      createPost({variables}) {
-        return mutate({
-          variables: {...variables},
-          updateQueries: {
-            FeedQuery: (prev, {mutationResult}) => {
-              const newPost = mutationResult.data.createPost
-              return {
-                allPosts: [...mutationResult.allPosts, newPost]
-              }
-            },
-          },
-        })
-      },
+  name: 'createPost',
+  options: {
+    update: (proxy, {data: {createPost}}) => {
+      const data = proxy.readQuery({ query })
+      data.allPosts.push(createPost);
+      proxy.writeQuery({query, data});
     }
   }
 })(
