@@ -73,7 +73,7 @@ class App extends Component {
         <PaddedDiv>
           {this.create()}
         </PaddedDiv>
-        <ListPage />
+        <ListPage user={this.props.data.user} />
       </div>
     )
   }

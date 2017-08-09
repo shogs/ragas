@@ -65,7 +65,7 @@ class CreateUser extends Component {
             value={this.state.emailAddress}
             placeholder='Email'
             onChange={(e) => this.setState({emailAddress: e.target.value})}
-            readOnly={true}
+            readOnly={this.profile.email}
           />
           <input
             className='w-100 pa3 mv2'

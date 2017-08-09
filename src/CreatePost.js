@@ -3,6 +3,8 @@ import { withRouter, Redirect } from 'react-router-dom'
 import { graphql, gql } from 'react-apollo'
 import { PropTypes } from 'prop-types'
 import Post from './Post'
+import FeedQuery from './queries/FeedQuery'
+import UserQuery from './queries/UserQuery'
 
 class CreatePost extends Component {
 
@@ -14,6 +16,7 @@ class CreatePost extends Component {
   state = {
     description: '',
     imageUrl: '',
+    isPrivate: false
   }
 
   render () {
@@ -51,20 +54,38 @@ class CreatePost extends Component {
           {this.state.description && this.state.imageUrl &&
             <button className='pa3 bg-black-10 bn dim ttu pointer' onClick={this.handlePost}>Post</button>
           }
+          <div>
+            <input
+              className='w-100 pa3 mv2'
+              value={this.state.isPrivate}
+              type='checkbox'
+              onChange={(e) => this.setState({isPrivate: e.target.checked})}
+            />
+            <span>
+              Private?
+            </span>
+          </div>
         </div>
       </div>
     )
   }
 
   handlePost = () => {
-    const {description, imageUrl} = this.state
+    const {description, imageUrl, isPrivate} = this.state
+    const createdById = this.props.data.user.id
     this.props.createPost({
-      variables: {description, imageUrl},
+      variables: {description, imageUrl, isPrivate, createdById},
       optimisticResponse: {
+        __typename: 'Mutation',
         createPost: {
           id: -1,
           description: description,
           imageUrl: imageUrl,
+          private: isPrivate,
+          createdBy: {
+            id: createdById,
+            __typename: 'User'
+          },
           __typename: 'Post'
         }
       }
@@ -74,42 +95,25 @@ class CreatePost extends Component {
 }
 
 const createPost = gql`
-  mutation createPost($description: String!, $imageUrl: String!) {
-    createPost(description: $description, imageUrl: $imageUrl) {
+  mutation createPost($description: String!, $imageUrl: String!, $isPrivate: Boolean!, $createdById: ID!) {
+    createPost(description: $description, imageUrl: $imageUrl, private: $isPrivate, createdById: $createdById) {
       id
-      ... Post_post
+      ...Post_post
     }
   }
   ${Post.fragments.post}
-`
-
-const query = gql`
-  query AllPostsQuery {
-    allPosts(orderBy: createdAt_DESC) {
-      id
-      ... Post_post
-    }
-  }
-  ${Post.fragments.post}
-`
-
-const userQuery = gql`
-  query userQuery {
-    user {
-      id
-    }
-  }
 `
 
 export default graphql(createPost, {
   name: 'createPost',
-  options: {
+  options: props => ({
     update: (proxy, {data: {createPost}}) => {
-      const data = proxy.readQuery({ query })
+      const variables = {createdById: createPost.createdBy.id}
+      const data = proxy.readQuery({ query: FeedQuery, variables })
       data.allPosts.unshift(createPost);
-      proxy.writeQuery({query, data});
+      proxy.writeQuery({query: FeedQuery, data, variables});
     }
-  }
+  })
 })(
-  graphql(userQuery, { options: {fetchPolicy: 'network-only'}} )(withRouter(CreatePost))
+  graphql(UserQuery, { options: {fetchPolicy: 'network-only'}} )(withRouter(CreatePost))
 )

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
+import UserQuery from './queries/UserQuery'
 
 class Post extends Component {
 
@@ -15,8 +16,20 @@ class Post extends Component {
         id
         description
         imageUrl
+        private
+        createdBy {
+          id
+        }
       }
     `
+  }
+
+  deleteButton = () => {
+    if (this.props.data.user && this.props.data.user.id === this.props.post.createdBy.id) {
+      return (
+        <span className='red f6 pointer dim' onClick={this._handleDelete}>Delete</span>
+      )
+    }
   }
 
   render () {
@@ -32,7 +45,7 @@ class Post extends Component {
         />
         <div className='pt3'>
           {this.props.post.description}&nbsp;
-          <span className='red f6 pointer dim' onClick={this._handleDelete}>Delete</span>
+          {this.deleteButton()}
         </div>
       </div>
     )
@@ -59,9 +72,21 @@ const deletePost = gql`
   }
 `
 
-const query = gql`
-  query AllPostsQuery {
-    allPosts(orderBy: createdAt_DESC) {
+const FeedQuery = gql`
+  query FeedQuery ($createdById:ID) {
+    allPosts(orderBy: createdAt_DESC, filter: {
+    OR: [
+      {
+        private: false
+      },
+      {
+        private: true,
+        createdBy: {
+          id: $createdById
+        }
+      }
+    ]
+  }) {
       id
       ...Post_post
     }
@@ -71,19 +96,20 @@ const query = gql`
 
 const PostWithMutation = graphql(deletePost, {
   name: 'deletePost',
-  options: {
+  options: props => ({
     update: (proxy, {data: {deletePost}}) => {
-      const data = proxy.readQuery({ query })
+      const variables = {createdById: props.data.user.id}
+      const data = proxy.readQuery({ query: FeedQuery, variables })
       data.allPosts.find((post, idx) => {
         if (post.id === deletePost.id) {
           data.allPosts.splice(idx, 1)
-          proxy.writeQuery({query, data})
+          proxy.writeQuery({query: FeedQuery, data, variables})
           return true
         }
         return false
       })
     }
-  }
+  })
 })(Post)
 
-export default PostWithMutation
+export default graphql(UserQuery)(PostWithMutation)

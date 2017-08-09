@@ -1,5 +1,5 @@
-# project: cj4gzy5vlcgyg01573t48af1l
-# version: 1
+# projectId: cj4gzy5vlcgyg01573t48af1l
+# version: 20
 
 type File implements Node {
   contentType: String!
@@ -14,6 +14,7 @@ type File implements Node {
 
 type Post implements Node {
   createdAt: DateTime!
+  createdBy: User @relation(name: "OwnedPosts")
   description: String!
   id: ID! @isUnique
   imageUrl: String!
@@ -21,10 +22,12 @@ type Post implements Node {
 }
 
 type User implements Node {
+  auth0UserId: String @isUnique
   createdAt: DateTime!
   emailAddress: String!
   emailSubscription: Boolean!
   id: ID! @isUnique
   name: String!
+  posts: [Post!]! @relation(name: "OwnedPosts")
   updatedAt: DateTime!
 }

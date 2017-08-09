@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import Post from './Post'
 import { graphql, gql } from 'react-apollo'
 import PropTypes from 'prop-types'
+import FeedQuery from './queries/FeedQuery'
 
 class ListPage extends Component {
 
@@ -50,16 +51,6 @@ class ListPage extends Component {
   }
 }
 
-const FeedQuery = gql`
-  query FeedQuery {
-    allPosts(orderBy: createdAt_DESC) {
-      id
-      ...Post_post
-    }
-  }
-  ${Post.fragments.post}
-`
-
 // eslint-disable-next-line
 const SubscriptionQuery = gql`
   subscription SubscriptionQuery {
@@ -69,15 +60,25 @@ const SubscriptionQuery = gql`
         id
         description
         imageUrl
+        private
+        createdBy {
+          id
+        }
       }
       previousValues {
         id
         description
         imageUrl
+        private
       }
     }
   }
 `
 
-
-export default graphql(FeedQuery)(ListPage)
+export default graphql(FeedQuery, {
+  options: props => ({
+    variables: {
+      createdById: props.user ? props.user.id : null
+    }
+  })
+})(ListPage)
