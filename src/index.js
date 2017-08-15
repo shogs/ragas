@@ -11,11 +11,13 @@ import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-trans
 import CreateUser from './CreateUser'
 import CreatePost from './CreatePost'
 
+const token = localStorage.getItem('auth0IdToken')
+
 const wsClient = new SubscriptionClient(process.env.REACT_APP_SUBSCRIPTION_API, {
   reconnect: true,
-  // connectionParams: {
-  //       authToken: user.authToken,
-  // }
+  connectionParams: {
+    authorization: `Bearer ${token}`
+  }
 })
 
 const networkInterface = createNetworkInterface({
@@ -33,7 +35,6 @@ networkInterface.use([{
       req.options.headers = {}
     }
 
-    const token = localStorage.getItem('auth0IdToken')
     req.options.headers.authorization = token ? `Bearer ${token}` : null
     next()
   }

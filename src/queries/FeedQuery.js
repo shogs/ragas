@@ -4,15 +4,20 @@ import { gql } from 'react-apollo'
 const FeedQuery = gql`
   query FeedQuery ($createdById:ID) {
     allPosts(orderBy: createdAt_DESC, filter: {
-    OR: [
+    AND: [
+      { deleted: false },
       {
-        private: false
-      },
-      {
-        private: true,
-        createdBy: {
-          id: $createdById
-        }
+        OR: [
+          {
+            private: false
+          },
+          {
+            private: true,
+            createdBy: {
+              id: $createdById
+            }
+          }
+        ]
       }
     ]
   }) {

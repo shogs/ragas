@@ -55,7 +55,7 @@ class Post extends Component {
     this.props.deletePost({
       variables: {id: this.props.post.id},
       optimisticResponse: {
-        deletePost: {
+        updatePost: {
           id: this.props.post.id,
           __typename: 'Post'
         }
@@ -66,7 +66,7 @@ class Post extends Component {
 
 const deletePost = gql`
   mutation deletePost($id: ID!) {
-    deletePost(id: $id) {
+    updatePost(id: $id, deleted: true) {
       id
     }
   }
@@ -75,15 +75,20 @@ const deletePost = gql`
 const FeedQuery = gql`
   query FeedQuery ($createdById:ID) {
     allPosts(orderBy: createdAt_DESC, filter: {
-    OR: [
+    AND: [
+      { deleted: false },
       {
-        private: false
-      },
-      {
-        private: true,
-        createdBy: {
-          id: $createdById
-        }
+        OR: [
+          {
+            private: false
+          },
+          {
+            private: true,
+            createdBy: {
+              id: $createdById
+            }
+          }
+        ]
       }
     ]
   }) {
@@ -97,11 +102,11 @@ const FeedQuery = gql`
 const PostWithMutation = graphql(deletePost, {
   name: 'deletePost',
   options: props => ({
-    update: (proxy, {data: {deletePost}}) => {
+    update: (proxy, {data: {updatePost}}) => {
       const variables = {createdById: props.data.user.id}
       const data = proxy.readQuery({ query: FeedQuery, variables })
       data.allPosts.find((post, idx) => {
-        if (post.id === deletePost.id) {
+        if (post.id === updatePost.id) {
           data.allPosts.splice(idx, 1)
           proxy.writeQuery({query: FeedQuery, data, variables})
           return true

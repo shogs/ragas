@@ -11,27 +11,32 @@ class ListPage extends Component {
   }
 
   componentDidMount() {
-    this.props.data.subscribeToMore({
-      document: SubscriptionQuery,
-      updateQuery: (previousState, {subscriptionData}) => {
-        if (subscriptionData.data.Post.mutation === 'CREATED') {
-          const newPost = subscriptionData.data.Post.node
-          const exists = previousState.allPosts.find(post => post.id === newPost.id)
-          if (!exists) {
-            const posts = [newPost].concat(previousState.allPosts)
+    if (this.props.user) {
+      this.props.data.subscribeToMore({
+        document: SubscriptionQuery,
+        variables: {
+          createdById: this.props.user ? this.props.user.id : null,
+        },
+        updateQuery: (previousState, {subscriptionData}) => {
+          if (subscriptionData.data.Post.mutation === 'CREATED') {
+            const newPost = subscriptionData.data.Post.node
+            const exists = previousState.allPosts.find(post => post.id === newPost.id)
+            if (!exists) {
+              const posts = [newPost].concat(previousState.allPosts)
+              return {
+                allPosts: posts
+              }
+            }
+          } else if (subscriptionData.data.Post.mutation === 'UPDATED' && subscriptionData.data.Post.node.deleted === true) {
+            const deletedPost = subscriptionData.data.Post.previousValues
+            const posts = previousState.allPosts.filter(post => post.id !== deletedPost.id)
             return {
               allPosts: posts
             }
           }
-        } else if (subscriptionData.data.Post.mutation === 'DELETED') {
-          const deletedPost = subscriptionData.data.Post.previousValues
-          const posts = previousState.allPosts.filter(post => post.id !== deletedPost.id)
-          return {
-            allPosts: posts
-          }
         }
-      }
-    })
+      })
+    }
   }
 
   render () {
@@ -53,14 +58,31 @@ class ListPage extends Component {
 
 // eslint-disable-next-line
 const SubscriptionQuery = gql`
-  subscription SubscriptionQuery {
-    Post(filter: { mutation_in: [CREATED, DELETED] }) {
+  subscription SubscriptionQuery ($createdById:ID) {
+    Post(filter: { mutation_in: [CREATED, UPDATED],
+  	OR: [
+      {
+        node : {
+          private: false
+        }
+      },
+      {
+        node: {
+          private: true,
+          createdBy: {
+            id: $createdById
+          }
+        }
+      }
+    ]
+  }) {
       mutation
       node {
         id
         description
         imageUrl
         private
+        deleted
         createdBy {
           id
         }
