@@ -82,6 +82,7 @@ class CreatePost extends Component {
           description: description,
           imageUrl: imageUrl,
           private: isPrivate,
+          deleted: false,
           createdBy: {
             id: createdById,
             __typename: 'User'

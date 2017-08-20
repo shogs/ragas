@@ -11,32 +11,30 @@ class ListPage extends Component {
   }
 
   componentDidMount() {
-    if (this.props.user) {
-      this.props.data.subscribeToMore({
-        document: SubscriptionQuery,
-        variables: {
-          createdById: this.props.user ? this.props.user.id : null,
-        },
-        updateQuery: (previousState, {subscriptionData}) => {
-          if (subscriptionData.data.Post.mutation === 'CREATED') {
-            const newPost = subscriptionData.data.Post.node
-            const exists = previousState.allPosts.find(post => post.id === newPost.id)
-            if (!exists) {
-              const posts = [newPost].concat(previousState.allPosts)
-              return {
-                allPosts: posts
-              }
-            }
-          } else if (subscriptionData.data.Post.mutation === 'UPDATED' && subscriptionData.data.Post.node.deleted === true) {
-            const deletedPost = subscriptionData.data.Post.previousValues
-            const posts = previousState.allPosts.filter(post => post.id !== deletedPost.id)
+    this.props.data.subscribeToMore({
+      document: SubscriptionQuery,
+      variables: {
+        createdById: this.props.user ? this.props.user.id : null,
+      },
+      updateQuery: (previousState, {subscriptionData}) => {
+        if (subscriptionData.data.Post.mutation === 'CREATED') {
+          const newPost = subscriptionData.data.Post.node
+          const exists = previousState.allPosts.find(post => post.id === newPost.id)
+          if (!exists) {
+            const posts = [newPost].concat(previousState.allPosts)
             return {
               allPosts: posts
             }
           }
+        } else if (subscriptionData.data.Post.mutation === 'UPDATED' && subscriptionData.data.Post.node.deleted === true) {
+          const deletedPost = subscriptionData.data.Post.previousValues
+          const posts = previousState.allPosts.filter(post => post.id !== deletedPost.id)
+          return {
+            allPosts: posts
+          }
         }
-      })
-    }
+      }
+    })
   }
 
   render () {
@@ -79,13 +77,7 @@ const SubscriptionQuery = gql`
       mutation
       node {
         id
-        description
-        imageUrl
-        private
-        deleted
-        createdBy {
-          id
-        }
+        ...Post_post
       }
       previousValues {
         id
@@ -95,6 +87,7 @@ const SubscriptionQuery = gql`
       }
     }
   }
+  ${Post.fragments.post}
 `
 
 export default graphql(FeedQuery, {

@@ -17,6 +17,7 @@ class Post extends Component {
         description
         imageUrl
         private
+        deleted
         createdBy {
           id
         }
