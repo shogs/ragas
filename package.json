@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "antd": "^2.12.6",
     "apollo-client": "^1.6.0",
     "auth0-lock": "^10.18.0",
     "graphql-anywhere": "^3.1.0",

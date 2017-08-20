@@ -9,11 +9,7 @@ import PropTypes from 'prop-types'
 import Login from './Login'
 import ListPage from './ListPage'
 import { Link } from 'react-router-dom'
-
-const Button = styled.button`
-  background: blue
-  foreground: white
-`
+import Button from 'antd/lib/button'
 
 const PaddedDiv = styled.div`
   padding: 10px

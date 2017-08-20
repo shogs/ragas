@@ -5,6 +5,7 @@ import { PropTypes } from 'prop-types'
 import Post from './Post'
 import FeedQuery from './queries/FeedQuery'
 import UserQuery from './queries/UserQuery'
+import Button from 'antd/lib/button'
 
 class CreatePost extends Component {
 
@@ -52,7 +53,7 @@ class CreatePost extends Component {
             <img src={this.state.imageUrl} className='w-100 mv3' alt="" />
           }
           {this.state.description && this.state.imageUrl &&
-            <button className='pa3 bg-black-10 bn dim ttu pointer' onClick={this.handlePost}>Post</button>
+            <Button onClick={this.handlePost}>Post</Button>
           }
           <div>
             <input
