@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import Auth0Lock from 'auth0-lock'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
-import Button from 'antd/lib/button'
 
 class Login extends Component {
   constructor(props) {
@@ -35,11 +34,9 @@ class Login extends Component {
 
   render () {
     return (
-      <div>
-        <Button onClick={this._showLogin} className='dib pa3 white bg-blue dim pointer' >
-          Log in with Auth0
-        </Button>
-      </div>
+      <span onClick={this._showLogin}>
+        Login
+      </span>
     )
   }
 }

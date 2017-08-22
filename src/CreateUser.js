@@ -54,8 +54,6 @@ class CreateUser extends Component {
       )
     }
 
-    console.log(this.state)
-
     return (
 
       <div className='w-100 pa4 flex justify-center'>
@@ -65,7 +63,7 @@ class CreateUser extends Component {
             value={this.state.emailAddress}
             placeholder='Email'
             onChange={(e) => this.setState({emailAddress: e.target.value})}
-            readOnly={this.profile.email}
+            readOnly={this.profile ? this.profile.email : false}
           />
           <input
             className='w-100 pa3 mv2'

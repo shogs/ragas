@@ -6,6 +6,7 @@ import Post from './Post'
 import FeedQuery from './queries/FeedQuery'
 import UserQuery from './queries/UserQuery'
 import Button from 'antd/lib/button'
+import { Input, Checkbox } from 'antd'
 
 class CreatePost extends Component {
 
@@ -37,14 +38,12 @@ class CreatePost extends Component {
     return (
       <div className='w-100 pa4 flex justify-center'>
         <div style={{ maxWidth: 400 }} className=''>
-          <input
-            className='w-100 pa3 mv2'
+          <Input
             value={this.state.description}
             placeholder='Description'
             onChange={(e) => this.setState({description: e.target.value})}
           />
-          <input
-            className='w-100 pa3 mv2'
+          <Input
             value={this.state.imageUrl}
             placeholder='Image Url'
             onChange={(e) => this.setState({imageUrl: e.target.value})}
@@ -52,20 +51,16 @@ class CreatePost extends Component {
           {this.state.imageUrl &&
             <img src={this.state.imageUrl} className='w-100 mv3' alt="" />
           }
-          {this.state.description && this.state.imageUrl &&
-            <Button onClick={this.handlePost}>Post</Button>
-          }
           <div>
-            <input
-              className='w-100 pa3 mv2'
+            <Checkbox
               value={this.state.isPrivate}
               type='checkbox'
               onChange={(e) => this.setState({isPrivate: e.target.checked})}
-            />
-            <span>
-              Private?
-            </span>
+            >Private?</Checkbox>
           </div>
+          {this.state.description && this.state.imageUrl &&
+            <Button onClick={this.handlePost}>Post</Button>
+          }
         </div>
       </div>
     )
